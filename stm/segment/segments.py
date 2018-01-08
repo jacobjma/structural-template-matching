@@ -67,7 +67,7 @@ class Segments(object):
         N = np.round(len(self) * f).astype(int)
         return self[np.random.choice(len(self), N, replace=False)]
     
-    def match(self, T, scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, algorithm='qcp'):
+    def match(self, T, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, rmsd_algorithm='qcp'):
         
         if not isinstance(T, list):
             T = [T]
@@ -78,9 +78,9 @@ class Segments(object):
         
         S = normalize_points(self.segment_points, self._origins)
         
-        rmsd, template_index, strain, rotation = match.match_templates(S, T, 
+        rmsd, template_index, strain, rotation = match.match_templates(S, T, method='angular-sort',
                     calc_strain=calc_strain, scale_invariant=scale_invariant, 
-                    progress_bar=progress_bar, rmsd_max=rmsd_max, algorithm=algorithm)
+                    progress_bar=progress_bar, rmsd_max=rmsd_max, rmsd_algorithm=rmsd_algorithm)
         
         self.set_array('rmsd', rmsd)
         self.set_array('strain', strain)

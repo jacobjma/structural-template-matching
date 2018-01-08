@@ -123,7 +123,7 @@ class BraggFilter(object):
         
         return ax
     
-    def display_mask(self, ax, mask):
+    def display_mask(self, ax, mask, **kwargs):
         
         if ax is None:
             ax=plt.subplot()
@@ -132,7 +132,7 @@ class BraggFilter(object):
         
         mask_array = self._get_mask(shape, mask)
         
-        ax.imshow(mask_array.T, extent=fft_extent(shape[0]) + fft_extent(shape[1]))
+        ax.imshow(mask_array.T, extent=fft_extent(shape[0]) + fft_extent(shape[1]), **kwargs)
         
         return ax
     
