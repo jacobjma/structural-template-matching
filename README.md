@@ -12,7 +12,7 @@ Structural Template Matching algorithm for analysis of atomic resolution images
 * [Python Image Library](https://pillow.readthedocs.io/en/5.0.0/)
 
 Optional:
-* [Jupyter and IPython](http://jupyter.org/)
+* [Jupyter](http://jupyter.org/)
 * [hyperspy](http://hyperspy.org/)
 
 ## Installation
