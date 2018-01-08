@@ -9,6 +9,7 @@ Structural Template Matching algorithm for analysis of atomic resolution images
 * [matplotlib](http://matplotlib.org/)
 * [SciPy](https://www.scipy.org/)
 * [scikit-image](http://scikit-image.org/)
+* [scikit-learn](http://scikit-learn.org/stable/)
 * [Python Image Library](https://pillow.readthedocs.io/en/5.0.0/)
 
 Optional:
