@@ -3,7 +3,7 @@
 Structural Template Matching algorithm for analysis of atomic resolution images
 
 ## Dependencies
-* [Python](http://www.python.org/) 2.7-3.6
+* [Python](http://www.python.org/) 3.3-3.6
 * [NumPy](http://docs.scipy.org/doc/numpy/reference/)
 * [Cython](http://cython.org/)
 * [matplotlib](http://matplotlib.org/)
