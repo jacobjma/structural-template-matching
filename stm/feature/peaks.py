@@ -111,6 +111,11 @@ def refine_peaks(image, points, region=3, model='gaussian', progress_bar=False):
     region = np.array(region).astype(bool)
     
     refined = np.zeros_like(points, dtype=float)
+
+    # Point may be floats, if exclude_adjacent was passed
+    # to find_local_peaks.  If so, round and cast.
+    if not issubclass(points.dtype.type, np.integer):
+        points = np.rint(points).astype(int)
     
     X,Y = np.indices(image.shape)
     
