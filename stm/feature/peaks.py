@@ -69,9 +69,10 @@ def find_local_peaks(image, min_distance, threshold=0, local_threshold=0,
     if exclude_adjacent:
         labels = label(is_peak)
         peaks = center_of_mass(np.ones_like(labels[0]), labels[0], range(1,labels[1]+1))
+        peaks = np.array(peaks)
     else:
         peaks = np.array(np.where(is_peak)).T
-        
+
     return peaks
     
 def refine_peaks(image, points, region=3, model='gaussian', progress_bar=False):
