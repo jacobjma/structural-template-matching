@@ -2,7 +2,12 @@ import numpy as np
 from itertools import combinations
 from tqdm import tqdm
 from stm.rmsd.kabsch import rmsd_kabsch
-from stm.rmsd.qcp import rmsd_qcp
+try:
+    from stm.rmsd.qcp import rmsd_qcp
+except:
+    import warnings
+    warnings.warn('Unable to import the fast C-version of the QCP-algorithm, using slow version.')
+    from stm.rmsd.qcp_slow import rmsd_qcp
 from stm.register import order, deform
 
 def rms_points(points):

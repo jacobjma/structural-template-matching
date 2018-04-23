@@ -5,7 +5,6 @@ def find(parents, index):
     parents[index] = parent
     return parent
 
-
 def merge(ranks, parents, a, b):
 
     assert(a != b)
@@ -18,8 +17,7 @@ def merge(ranks, parents, a, b):
     else:
         parents[b] = a
         ranks[a] += 1
-
-
+        
 def find_and_merge(ranks, parents, a, b):
 
     pa = find(parents, a)

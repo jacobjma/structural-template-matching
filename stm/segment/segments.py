@@ -4,16 +4,12 @@ import collections
 import scipy.stats
 from stm.register import match, lattice, deform, cluster
 
-def normalize_points(points, origins):
-    points = [point.astype(np.float64) for point in points]
-    
-    if origins.lower() == 'front':
-        points = [point[1:] - point[0] for point in points]
-    elif origins.lower() == 'cop':
-        cop = np.mean(points,axis=0)
-        points = [point - cop for point in points]
-    
-    return points
+def center_segment(segment, origin):
+    if origin.lower() == 'front':
+        segment = segment[1:] - segment[0]
+    elif origin.lower() == 'cop':
+        segment = segment - np.mean(segment,axis=0)
+    return segment
 
 class Segments(object):
     
@@ -74,9 +70,9 @@ class Segments(object):
         
         T = lattice.convert_templates(T, set(self.lengths))
         
-        T = normalize_points(T, self._origins)
+        T = [center_segment(t, self._origins) for t in T]
         
-        S = normalize_points(self.segment_points, self._origins)
+        S = [center_segment(s, self._origins) for s in self.segment_points]
         
         rmsd, template_index, strain, rotation = match.match_templates(S, T, method='angular-sort',
                     calc_strain=calc_strain, scale_invariant=scale_invariant, 
@@ -109,7 +105,7 @@ class Segments(object):
         
     def calc_distance_matrix(self, scale_invariant=True, progress_bar=True):
         
-        S = normalize_points(self.segment_points, self._origins)
+        S = [center_segment(s, self._origins) for s in self.segment_points]
         
         distance_matrix = match.match_self(S, scale_invariant=scale_invariant, progress_bar=progress_bar)
         
@@ -129,7 +125,7 @@ class Segments(object):
             indices = self.clusters == cluster
             S = [self.segment_points[j] for j,i in enumerate(indices) if i]
         
-        S = normalize_points(S, self._origins)
+        S = [center_segment(s, self._origins) for s in S]
         
         average_segment = match.average_segment(S)
         

@@ -1,8 +1,7 @@
 import numpy as np
 import scipy.spatial
 import sklearn.neighbors
-from stm.segment import union_find
-from stm.segment import Segments
+from stm.segment import union_find, Segments
 
 def simplex_edges(simplices):
 

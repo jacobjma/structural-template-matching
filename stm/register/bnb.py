@@ -1,6 +1,6 @@
 import numpy as np
 import heapq
-from stm.kabsch import rmsd_kabsch
+from stm.rmsd.kabsch import rmsd_kabsch
 
 def bnb_search(src, dst, rmsd_max=np.inf, min_level=None, max_eval=np.inf):
     
