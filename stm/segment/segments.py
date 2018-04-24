@@ -13,14 +13,33 @@ def center_segment(segment, origin):
 
 class Segments(object):
     
+    """Segments object.
+
+    The Segments object can represent segments of a larger group of 
+    points. It containes the original collection of points, and a list
+    of lists of indices belonging to each segment. The origin of the 
+    segments should 
+    
+    Per-segment properties (e.g. RMSD and strain) are stored in a dict
+    of ndarrays.
+     
+    Parameters:
+    ----------
+    points: list of xy-positions
+        Anything that can be converted to an ndarray of shape (n, 2) 
+        will do: [(x1,y1), (x2,y2), ...].
+    indices: list of list of ints
+        Each segment is defined by the ints in a sublist.
+    origins: str
+        The origin of the segments can be chosen as
+        'front': First listed index of the segment 
+        'cop': Center of positions of the points in the segment
+    """
+    
     def __init__(self, points, indices, origins = 'front'):
-        
         self._points = points.astype(np.float64)
-        
         self._indices = indices
-        
         self._origins = origins
-        
         self._arrays = {}
         
     def __len__(self):
@@ -63,7 +82,23 @@ class Segments(object):
         N = np.round(len(self) * f).astype(int)
         return self[np.random.choice(len(self), N, replace=False)]
     
-    def match(self, T, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, rmsd_algorithm='qcp'):
+    def match(self, templates, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, rmsd_algorithm='qcp'):
+        
+        """ Match segments to templates.
+        
+        Parameters:
+        ----------
+        templates: list of xy-positions or list of lists of xy-positions
+            For each template anything that can be converted to an ndarray 
+            of shape (n, 2) will do: [(x1,y1), (x2,y2), ...]. 
+            If multiple templates are required use a list such arrays etc.
+        method: 'str'
+            The current methods for matching are:
+            'angular-sort': Angular sorting using symmetries
+            'bnb': Branch and bound search
+        """
+        
+        T = templates
         
         if not isinstance(T, list):
             T = [T]
@@ -74,7 +109,7 @@ class Segments(object):
         
         S = [center_segment(s, self._origins) for s in self.segment_points]
         
-        rmsd, template_index, strain, rotation = match.match_templates(S, T, method='angular-sort',
+        rmsd, template_index, strain, rotation = match.match_templates(S, T, method=method,
                     calc_strain=calc_strain, scale_invariant=scale_invariant, 
                     progress_bar=progress_bar, rmsd_max=rmsd_max, rmsd_algorithm=rmsd_algorithm)
         
