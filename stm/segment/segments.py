@@ -96,6 +96,10 @@ class Segments(object):
             The current methods for matching are:
             'angular-sort': Angular sorting using symmetries
             'bnb': Branch and bound search
+        scale_invariant: bool
+            Should the RMSD calculation take scale into account
+        calc_strain: bool
+            Should the strain calculation after matching 
         """
         
         T = templates
