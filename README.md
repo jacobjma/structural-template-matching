@@ -11,10 +11,7 @@ Structural Template Matching algorithm for analysis of atomic resolution images
 * [scikit-image](http://scikit-image.org/)
 * [scikit-learn](http://scikit-learn.org/stable/)
 * [Python Image Library](https://pillow.readthedocs.io/en/5.0.0/)
-
-Optional:
 * [Jupyter](http://jupyter.org/)
-* [hyperspy](http://hyperspy.org/)
 
 ## Installation
 Install manually after cloning the repository from Github:
