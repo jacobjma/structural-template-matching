@@ -63,7 +63,7 @@ class Segments(object):
     
     @property
     def best_rmsd(self):
-        return np.min(self.rmsd,axis=1)
+        return np.min(self.rmsd, axis=1)
     
     @property
     def best_match(self):
@@ -78,8 +78,16 @@ class Segments(object):
         else:
             raise NotImplementedError()
     
-    def sample(self, f):
-        N = np.round(len(self) * f).astype(int)
+    def sample(self, fraction):
+        """ Return a random subsample.
+        
+        Parameters:
+        ----------
+        fraction: float
+            The fraction of the segments to return.
+        """
+        
+        N = np.round(len(self) * fraction).astype(int)
         return self[np.random.choice(len(self), N, replace=False)]
     
     def match(self, templates, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, rmsd_algorithm='qcp'):
@@ -99,7 +107,15 @@ class Segments(object):
         scale_invariant: bool
             Should the RMSD calculation take scale into account
         calc_strain: bool
-            Should the strain calculation after matching 
+            Should the strain be calculated after matching 
+        rmsd_max: float
+            The max rmsd that is considered a match.
+        progress_bar: bool
+            Display progress bar.
+        rmsd_algorithm: bool
+            The available algorithms for calculating the RMSD are:
+            'qcp': Quaternion Characteristic Polynomial
+            'kabsch': Kabsch algorithm 
         """
         
         T = templates
