@@ -9,6 +9,7 @@ except:
     warnings.warn('Unable to import the fast C-version of the QCP-algorithm, using slow version.')
     from stm.rmsd.qcp_slow import rmsd_qcp
 from stm.register import order, deform
+from stm.register.bnb import bnb_search
 
 def rms_points(points):
     return np.sqrt(np.sum(points ** 2) / points.shape[0])
@@ -91,9 +92,8 @@ def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_stra
         symmetries = [order.find_symmetry(t) for t in T]
         permutations = [order.generate_non_equivalent(t,n) for t,n in zip(T, symmetries)]
     elif method.lower() == 'bnb':
-        raise NotImplementedError()
-        #symmetries = [order.find_symmetry(t) for t in T]
-        #permutations = [range(len(t)) for t in T]
+        symmetries = [order.find_symmetry(t) for t in T]
+        permutations = [[range(len(t)) for t in T]]
     
     if scale_invariant:
         scaled_T = [t/rms_points(t) for t in T]
@@ -108,7 +108,7 @@ def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_stra
     
     rotation =  np.ma.masked_array(np.zeros(len(S), dtype=float), mask=True)
     
-    for i,s in enumerate(tqdm(S[:], disable=not progress_bar)):
+    for i,s in enumerate(tqdm(S, disable=not progress_bar)):
         best_rmsd = np.inf
         
         if scale_invariant:
@@ -116,15 +116,21 @@ def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_stra
         else:
             scaled_s = s
         
-        for j,(t,scaled_t,P) in enumerate(zip(T,scaled_T,permutations)):
+        
+        for j, (t, scaled_t, P) in enumerate(zip(T, scaled_T, permutations)):
+            
             if len(s) == len(t):
                 for p in P:
-                    if rmsd_algorithm is 'kabsch':
-                        r = rmsd_kabsch(scaled_t[p], scaled_s) / np.sqrt(len(scaled_s))
-                    elif rmsd_algorithm is 'qcp':
-                        r = rmsd_qcp(scaled_t[p].astype(np.float), scaled_s.astype(np.float))
-                    else:
-                        raise NotImplementedError()
+                    print(p)
+                    if method == 'bnb':
+                        r, level, p, num_eval = bnb_search(scaled_t, scaled_s)
+                    elif method == 'angular-sort':
+                        if rmsd_algorithm is 'kabsch':
+                            r = rmsd_kabsch(scaled_t[p], scaled_s) / np.sqrt(len(scaled_s))
+                        elif rmsd_algorithm is 'qcp':
+                            r = rmsd_qcp(scaled_t[p].astype(np.float), scaled_s.astype(np.float))
+                        else:
+                            raise NotImplementedError()
                     
                     if (r < best_rmsd) & (r < rmsd_max):
                         best_rmsd = r

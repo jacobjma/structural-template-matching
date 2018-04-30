@@ -19,7 +19,7 @@ def discrete_cmap(color_numbers=None, N=10, cmap=plt.cm.tab10):
     return cmap
 
 def add_colorbar(ax, mapable, label=None, loc='right', size='5%', pad=0.05, ticks=None):
-
+    
     if (loc == 'left')|(loc == 'right'):
         orientation = 'vertical'
     else:
@@ -33,6 +33,10 @@ def add_colorbar(ax, mapable, label=None, loc='right', size='5%', pad=0.05, tick
         cbar.set_label(label)
     
     return cbar
+
+def add_numbering(ax, points):
+    for i,point in enumerate(points):
+        ax.annotate(i, (point[0],point[1]))
     
 def add_segment_patches(ax, segments, colors=None, clim=None, **kwargs):
     
