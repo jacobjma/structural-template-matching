@@ -1,7 +1,6 @@
 import numpy as np
 import heapq
 from stm.rmsd.kabsch import rmsd_kabsch
-from stm.rmsd.qcp import rmsd_qcp
 try:
     from stm.rmsd.qcp import rmsd_qcp
 except:
@@ -29,7 +28,7 @@ def bnb_search(src, dst, rmsd_max=np.inf, min_level=None, max_eval=np.inf, verbo
                 
         bestnode = Node(level=max_level, permutation=range(N))
         bestnode.evaluate(src, dst)
-        upper_bound = bestnode.rmsd
+        upper_bound = bestnode.rssd
         
         if verbose > 0:
             print('Maximum level: {}, Upper bound: {}'.format(max_level, upper_bound))
@@ -49,11 +48,11 @@ def bnb_search(src, dst, rmsd_max=np.inf, min_level=None, max_eval=np.inf, verbo
             if num_eval > max_eval:
                 break
             
-            if node.rmsd > upper_bound:
+            if node.rssd > upper_bound:
                 continue
             
             if node.level > 0:
-                if node.rmsd / np.sqrt(node.level) > rmsd_max:
+                if node.rssd / np.sqrt(node.level) > rmsd_max:
                     continue
             
             if node.level == max_level:
@@ -63,23 +62,23 @@ def bnb_search(src, dst, rmsd_max=np.inf, min_level=None, max_eval=np.inf, verbo
             
             for child in children:
                 
-                if child.rmsd is None:
+                if child.rssd is None:
                     child.evaluate(src, dst)
                     num_eval+=1
                     
                 if verbose > 1:
-                    print('RSSD: {:.4f}, level: {}, best RSSD: {:.4f}'.format(child.rmsd, child.level, bestnode.rmsd))
+                    print('RSSD: {:.4f}, level: {}, best RSSD: {:.4f}'.format(child.rssd, child.level, bestnode.rssd))
                 
-                if child.rmsd < bestnode.rmsd:
+                if child.rssd < bestnode.rssd:
                     heapq.heappush(heap, child)
                 
                 if child.level == max_level:
-                    if child.rmsd < upper_bound:
+                    if child.rssd < upper_bound:
                         if verbose > 0:
-                            print('New upper bound: {:.4f} < {:.4f} (after {} evaluations)'.format(child.rmsd, upper_bound, num_eval))
+                            print('New upper bound: {:.4f} < {:.4f} (after {} evaluations)'.format(child.rssd, upper_bound, num_eval))
                         
                         bestnode = child
-                        upper_bound = child.rmsd
+                        upper_bound = child.rssd
                         
             if len(heap) > 1e6:
                 raise RuntimeError('Too many nodes')
@@ -89,16 +88,17 @@ def bnb_search(src, dst, rmsd_max=np.inf, min_level=None, max_eval=np.inf, verbo
         #if upper_bound < rmsd_max:
         #    break
 
-    rmsd = bestnode.rmsd / np.sqrt(bestnode.level)
+    rmsd = bestnode.rssd / np.sqrt(bestnode.level)
     level = bestnode.level
     permutation = bestnode.permutation
     
     if verbose > 0:
         print('-----')
         print('Search complete after {} evaluations'.format(num_eval))
-        print('RSSD: {} (RMSD: {})'.format(rmsd * np.sqrt(bestnode.level), rmsd))
-        print('level:',level)
-        print('final permutation:',permutation)
+        print('RSSD: {} (RMSD: {})'.format(bestnode.rssd, rmsd))
+        print('Level: {}'.format(level))
+        print('Final permutation: {}'.format(permutation))
+        print('-----')
 	
     return rmsd, level, permutation, num_eval
 
@@ -107,7 +107,7 @@ class Node(object):
     def __init__(self, level, permutation):
         self._level = level
         self._permutation = permutation
-        self._rmsd = None
+        self._rssd = None
         self._bound = None
         self._children = None
     
@@ -116,8 +116,8 @@ class Node(object):
         return self._permutation
     
     @property
-    def rmsd(self):
-        return self._rmsd
+    def rssd(self):
+        return self._rssd
 
     @property
     def bound(self):
@@ -133,18 +133,18 @@ class Node(object):
     
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self._rmsd == other._rmsd
+            return self._rssd == other._rssd
         return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
-            return self._rmsd < other._rmsd
+            return self._rssd < other._rssd
         return NotImplemented
         
     def evaluate(self, src, dst):
         
         if self._level <= 1:
-            self._rmsd = 0.
+            self._rssd = 0.
         else:
             #Lp = np.sum(np.linalg.norm(src[:self._level],axis=0)**2)
             #Lt = np.sum(np.linalg.norm(dst[self._permutation[:self._level]],axis=0)**2)
@@ -155,12 +155,12 @@ class Node(object):
             #p = points.coords[:self._level] / np.sqrt(Lp/Lt)
             #t = template.coords[self._permutation[:self._level]]
             
-            rmsd = rmsd_qcp(src, dst) * np.sqrt(len(src))
+            rssd = rmsd_qcp(src, dst) * np.sqrt(len(src))
             #rmsd = rmsd_kabsch(scaled_src, permuted_dst)
             
             #print(rmsd)
             
-            self._rmsd = rmsd
+            self._rssd = rssd
             
     def generate_children(self):
         

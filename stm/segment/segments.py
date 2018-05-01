@@ -90,7 +90,7 @@ class Segments(object):
         N = np.round(len(self) * fraction).astype(int)
         return self[np.random.choice(len(self), N, replace=False)]
     
-    def match(self, templates, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, rmsd_algorithm='qcp'):
+    def match(self, templates, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, progress_bar=False, rmsd_algorithm='qcp', verbose=0):
         
         """ Match segments to templates.
         
@@ -131,7 +131,8 @@ class Segments(object):
         
         rmsd, template_index, strain, rotation = match.match_templates(S, T, method=method,
                     calc_strain=calc_strain, scale_invariant=scale_invariant, 
-                    progress_bar=progress_bar, rmsd_max=rmsd_max, rmsd_algorithm=rmsd_algorithm)
+                    progress_bar=progress_bar, rmsd_max=rmsd_max, rmsd_algorithm=rmsd_algorithm,
+                    verbose=verbose)
         
         self.set_array('rmsd', rmsd)
         self.set_array('strain', strain)

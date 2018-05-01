@@ -83,8 +83,67 @@ def average_segment(S, num_iter=3, progress_bar=False):
         mean_segment = summed_segment / len(S)
     
     return summed_segment / len(S)
+
     
-def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_strain=True, rmsd_max=np.inf, rmsd_algorithm='qcp', progress_bar=False):
+class RMSD(object):
+    
+    def __init__(self, P, Q, rmsd_max=np.inf, scale_invariant=True):
+        
+        self.P = P
+        self.Q = Q
+        
+        if scale_invariant:
+            self.scaled_P = [p/rms_points(p) for p in P]
+            self.scaled_Q = [q/rms_points(q) for q in Q]
+        
+        self.symmetries = [order.find_symmetry(q) for q in Q]
+        
+        self.rmsd_max = rmsd_max
+        
+        self.rmsd = np.ma.masked_array(np.zeros(len(P), dtype=float), mask=True)
+        self.best_Q =  np.ma.masked_array(np.zeros(len(P), dtype=int), mask=True)
+        self.strain =  np.ma.masked_array(np.zeros((len(P),2,2), dtype=float), mask=True)
+        self.rotation =  np.ma.masked_array(np.zeros(len(P), dtype=float), mask=True)
+    
+    def run(self, calc_strain=True):
+        
+        for i in tqdm(range(len(self.segments)), disable=not progress_bar):
+            
+            best_rmsd = np.inf
+            
+            for j in range(len(self.templates)):
+                if len(self.segments[i]) == len(self.templates[i]):
+                    
+                    rmsd, permutation = self.get_rmsd(i, j)
+                
+                if (rmsd < best_rmsd) & (rmsd < self.rmsd_max):
+                    best_rmsd = rmsd
+                    best_permutation = permutation
+                    self.rmsd[i] = r
+                    self.best_Q = j
+                    
+        
+class AngularSortRMSD(RMSD):
+    
+    def __init__(self, segments, templates):
+        
+        self.permutations = 
+    
+    def get_rmsd(self, i, j):
+        
+        best_rmsd = np.inf
+        
+        for permutation in self.permutations:
+            r = rmsd_qcp(template.astype(np.float), segment.astype(np.float))
+        
+            if (r < best_rmsd) & (r < rmsd_max):
+                best_rmsd = r
+                best_permutation = permutation
+        
+        return best_rmsd, best_permutation
+    
+def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_strain=True, 
+                    rmsd_max=np.inf, min_num_matches=None, rmsd_algorithm='qcp', progress_bar=False, verbose=0):
     
     if method.lower() == 'angular-sort':
         S = [s[order.azimuth_sort(s)] for s in S]
@@ -101,11 +160,8 @@ def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_stra
         scaled_T = T
     
     rmsd = np.ma.masked_array(np.zeros(len(S), dtype=float), mask=True)
-    
     template_index =  np.ma.masked_array(np.zeros(len(S), dtype=int), mask=True)
-    
     strain =  np.ma.masked_array(np.zeros((len(S),2,2), dtype=float), mask=True)
-    
     rotation =  np.ma.masked_array(np.zeros(len(S), dtype=float), mask=True)
     
     for i,s in enumerate(tqdm(S, disable=not progress_bar)):
@@ -116,14 +172,11 @@ def match_templates(S, T, method='angular-sort', scale_invariant=True, calc_stra
         else:
             scaled_s = s
         
-        
         for j, (t, scaled_t, P) in enumerate(zip(T, scaled_T, permutations)):
-            
             if len(s) == len(t):
                 for p in P:
-                    print(p)
                     if method == 'bnb':
-                        r, level, p, num_eval = bnb_search(scaled_t, scaled_s)
+                        r, level, p, num_eval = bnb_search(scaled_t, scaled_s, rmsd_max=rmsd_max, min_level=min_num_matches, verbose=verbose)
                     elif method == 'angular-sort':
                         if rmsd_algorithm is 'kabsch':
                             r = rmsd_kabsch(scaled_t[p], scaled_s) / np.sqrt(len(scaled_s))
