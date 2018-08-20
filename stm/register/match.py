@@ -127,7 +127,7 @@ class AngularSortRMSD(RMSD):
     
     def __init__(self, segments, templates):
         
-        self.permutations = 
+        self.permutations = None
     
     def get_rmsd(self, i, j):
         
